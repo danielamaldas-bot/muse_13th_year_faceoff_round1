@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumen Veil</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <h1>Lumen Veil</h1>
+      <span class="tag">a moonlit dew run</span>
+    </header>
+
+    <div class="stage-wrap">
+      <canvas id="game" width="800" height="520" aria-label="Lumen Veil game canvas"></canvas>
+      <div class="hud">
+        <span id="hud-dew">Dew 0 / 6</span>
+        <span id="hud-lives">Light ●●●</span>
+      </div>
+      <div id="overlay">
+        <h2 id="overlay-title">Lumen Veil</h2>
+        <div id="overlay-body"></div>
+      </div>
+    </div>
+
+    <div id="dialogue" class="dialogue-panel" role="status" aria-live="polite">
+      Carry the dew. Open the moon gate. Escape the moths.
+    </div>
+
+    <div class="hints">
+      <span>WASD / Arrows move</span>
+      <span>Collect 6 dewdrops, then enter the Moon Gate</span>
+      <span>R restarts</span>
+    </div>
+
+    <footer class="note">Self-contained HTML5 canvas game · no external libraries</footer>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="story.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

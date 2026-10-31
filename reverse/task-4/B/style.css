@@ -1,0 +1,163 @@
+/* Lumen Veil — layout and chrome */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #070a14;
+  color: #c9d4ef;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  background:
+    radial-gradient(ellipse at 50% 0%, #152038 0%, #070a14 55%);
+}
+
+.shell {
+  width: min(840px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+header.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+header.top h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: #ffe9a8;
+  text-shadow: 0 0 18px rgba(255, 233, 168, 0.35);
+}
+
+header.top .tag {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.stage-wrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(154, 212, 255, 0.18),
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    0 0 60px rgba(90, 120, 200, 0.12);
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #0b1020;
+  vertical-align: middle;
+}
+
+.hud {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  color: #c9d4ef;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  background: rgba(7, 10, 20, 0.72);
+  backdrop-filter: blur(3px);
+  transition: opacity 0.25s ease;
+}
+
+#overlay.hidden {
+  display: none;
+}
+
+#overlay-title {
+  margin: 0 0 12px;
+  font-size: 2rem;
+  color: #ffe9a8;
+  text-shadow: 0 0 24px rgba(255, 233, 168, 0.4);
+}
+
+#overlay-body {
+  max-width: 420px;
+  line-height: 1.45;
+  font-size: 0.98rem;
+}
+
+#overlay-body p {
+  margin: 0.45em 0;
+}
+
+#overlay-body .prompt {
+  margin-top: 1.2em;
+  color: #9ad4ff;
+  font-size: 0.88rem;
+}
+
+.dialogue-panel {
+  min-height: 3.2em;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(18, 26, 44, 0.9);
+  border: 1px solid rgba(154, 212, 255, 0.18);
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: #d6e2ff;
+}
+
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  font-size: 0.78rem;
+  opacity: 0.65;
+  padding: 0 4px;
+}
+
+.hints span::before {
+  content: "· ";
+  opacity: 0.5;
+}
+.hints span:first-child::before {
+  content: "";
+}
+
+footer.note {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  opacity: 0.45;
+}
