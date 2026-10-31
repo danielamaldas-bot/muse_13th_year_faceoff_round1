@@ -1,0 +1,47 @@
+**I have successfully added the new statue guard enemy to the game.** Here's a summary of the changes:
+
+## New Enemy: Statue Guard
+
+The statue guard is a stationary enemy that:
+- Waits for Vel to approach (within ~200 pixels)
+- Raises its spear and pauses for exactly 1 second
+- Throws a spear in a straight line that can be jumped over
+- Takes exactly 2 arrow hits to destroy
+- Matches the game's pixel art style and color palette
+
+## Changes Made
+
+### 1. **js/tuning.js** - Added guard stats:
+- HP: 2 (requires 2 arrow hits)
+- spearSpeed: 260 (projectile velocity)
+
+### 2. **js/enemies.js** - Updated spawn logic:
+- Added guard type to `spawn0()` with 20×24 pixel dimensions, HP 2, on-ground positioning
+- Added guard type to `spawn()` with proper dimensions and initial state
+
+### 3. **js/engine.js** - Added AI and rendering:
+- **AI Logic**: Detects player within 200px, transitions through `raise` → `ready` (1s pause) → `throw` states
+- **Projectile**: Creates spear projectiles (type 'spear') with 2-second lifetime
+- **Drawing**: Added guard rendering with state-specific sprites (idle/raise/ready/throw)
+- **Collision**: Spear projectiles work like existing foes (can be jumped over, damage player on contact)
+
+### 4. **js/sprites.js** - Added guard sprites:
+- Created `guardSprite()` function rendering a stone statue with wooden spear
+- **Idle state**: Spear held low
+- **Raise/Ready/Throw states**: Spear raised high
+- Matching existing pixel art style with rock and wood textures
+
+### 5. **js/stage1.js** - Placed two guards:
+- **Guard 1** (column 300): On raised platform after guardian statue tower
+- **Guard 2** (column 380): On ground before boss clearing area
+
+## Gameplay Integration
+
+The guards are fully integrated with existing game systems:
+- **Arrow hits**: Reduce HP, flash effect, 2 hits needed for destruction
+- **Player detection**: Only become active when player is within range
+- **Art style**: Uses the same pixel art techniques as other enemies
+- **Sound**: Plays 'spit' sound when throwing
+- **Collision**: Spears follow same physics as other projectiles
+
+The new enemy provides a challenging encounter that tests timing (jumping over spears) while fitting seamlessly into the existing game world and visual style.
