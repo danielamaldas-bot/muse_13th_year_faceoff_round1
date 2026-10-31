@@ -1,0 +1,91 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>The Thirteenth Year - Stage 1</title>
+<style>
+html,body{margin:0;overflow:hidden;height:100%;overscroll-behavior:none;position:fixed;inset:0;width:100%;background:#120a12;color:#efeae0;font:12px monospace;touch-action:none;user-select:none;-webkit-user-select:none}
+#wrap{padding:6px;height:100%;overflow:hidden;box-sizing:border-box;position:relative}
+canvas{display:block;image-rendering:pixelated;border-radius:6px;background:#000;touch-action:none;flex:none}
+.bar{display:flex;gap:6px;justify-content:center;align-items:center;height:30px;margin-bottom:8px;overflow:hidden}
+.b{padding:4px 9px;border-radius:8px;border:2px solid #d8b24a;background:#2a1a2a;color:#efeae0;font:bold 11px monospace;cursor:pointer;white-space:nowrap}
+.b.acc{background:#c8161e}
+#menu{display:none;position:absolute;left:16px;right:16px;top:16px;z-index:5;padding:12px;border-radius:10px;background:#1e121e;border:2px solid #d8b24a;flex-direction:column;gap:8px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;border:1px solid #6a4a6a;background:#2a1a2a;cursor:pointer}
+.row.on{background:#4a2a3a}.row small{display:block;color:#a9a2c0}.tg{min-width:44px;text-align:center;padding:4px 8px;border-radius:12px;border:1px solid #d8b24a}
+.row.on .tg{background:#c8161e}
+#stage{display:flex;align-items:center;justify-content:center;gap:8px}
+#stage.port{flex-direction:column}#stage.port .pads{display:flex;justify-content:space-between;gap:8px}
+.zone{position:relative;border-radius:12px;background:#2a1a2a;overflow:hidden;touch-action:none;flex:none}
+.zone .k{position:absolute;display:flex;align-items:center;justify-content:center;border:2px solid #d8b24a;color:#efeae0;font:bold 12px monospace;pointer-events:none;background:#1e121e}
+.zone .k.on{background:#c8161e}
+#help{color:#a9a2c0;text-align:center;margin-top:6px;line-height:1.5}
+#rot{display:none;position:fixed;inset:0;z-index:9;background:#120a12;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px}
+#fs{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(18,10,18,.92);text-align:center;padding:20px}#fsB{font:bold 22px monospace;padding:18px 28px;border-radius:14px;background:#c8283c;color:#fff;border:3px solid #f2c632;cursor:pointer}#fsS{font:bold 13px monospace;color:#a9a2c0;text-decoration:underline;cursor:pointer}
+</style></head><body><div id="fs"><b style="font-size:18px;color:#f2c632">THE THIRTEENTH YEAR</b><div id="fsB">▶ PLAY FULLSCREEN</div><div id="fsS">play in this window instead</div></div><div id="wrap">
+<div class="bar"><div class="b acc" id="bStart">START</div><div class="b" id="bPause">II PAUSE</div><div class="b" id="bMute">SOUND: ON</div><div class="b" id="bRestart">RESTART</div><div class="b" id="bSet">⚙ SETTINGS</div></div>
+<div id="stage"><div class="zone" id="zL"></div><canvas id="cv" width="320" height="180"></canvas><div class="zone" id="zR"></div></div>
+<div id="menu"><b>⚙ SETTINGS</b>
+<div class="row" data-k="inv"><div>INVINCIBILITY<small>Enemies, rocks and falls cost no hearts</small></div><div class="tg">OFF</div></div>
+<div class="row" data-k="inf"><div>UNLIMITED ARROWS<small>The quiver never runs dry</small></div><div class="tg">OFF</div></div>
+<div class="b acc" id="bClose" style="align-self:flex-end">CLOSE</div></div>
+<div id="help">Keyboard: Arrows/WASD move · Space/Up jump (twice to spin) · X/K bow · Z/J sword · P/Esc pause · M mute</div>
+<div id="rot"><div style="font:bold 44px monospace;color:#f2c632">↻</div><b style="font-size:16px">Rotate your phone</b><div style="color:#a9a2c0;max-width:280px">The Thirteenth Year plays sideways: game in the middle, D-pad left, buttons right.</div><div class="b" id="bPort">PLAY IN PORTRAIT ANYWAY</div></div>
+</div>
+<!-- Game code: see README.md for what lives where. Order matters. -->
+<script src="js/tuning.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/input.js"></script>
+<script src="js/stage1.js"></script>
+<script src="js/player.js"></script>
+<script src="js/enemies.js"></script>
+<script src="js/boss.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/art.js"></script>
+<script src="js/anim.js"></script>
+<script src="js/main.js"></script>
+<!-- Page shell: on-screen layout, fullscreen + landscape lock, touch pads, settings menu. -->
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const TR={stage:new Audio('https://cdn.jsdelivr.net/gh/thepodemail-lgtm/thirteenth-year-music@main/stage1-v2.mp3'),boss:new Audio('https://cdn.jsdelivr.net/gh/thepodemail-lgtm/thirteenth-year-music@main/last-stand-at-the-spire.mp3')};
+for(const a of Object.values(TR)){a.loop=true;a.preload='auto';a.volume=TUNING.musicVolume}
+let cur=null,muted=false,paused=false;
+function music(k){for(const n in TR)if(n!==k)TR[n].pause();cur=TR[k]?k:null;if(!cur)return false;const a=TR[cur];if(a.currentTime>0&&k==='stage'){}else a.currentTime=0;a.muted=muted;if(!paused)a.play().catch(()=>{});return true}
+const g=bootGame({touch:'ontouchstart' in window||navigator.maxTouchPoints>0,music,
+ onMute(m){muted=m;for(const a of Object.values(TR))a.muted=m;$('bMute').textContent=m?'SOUND: OFF':'SOUND: ON'},
+ onPause(p){paused=p;$('bPause').textContent=p?'▶ RESUME':'II PAUSE';if(cur){p?TR[cur].pause():TR[cur].play().catch(()=>{})}}});
+window.__game=g;
+const tap=(el,fn)=>el.addEventListener('pointerdown',e=>{e.preventDefault();fn()});
+tap($('cv'),()=>g.pressStart());tap($('bStart'),()=>g.pressStart());tap($('bPause'),()=>g.togglePause());tap($('bMute'),()=>g.toggleMute());tap($('bRestart'),()=>g.restart());
+const menu=$('menu');function paint(){const o=g.opts();menu.querySelectorAll('.row').forEach(r=>{const on=o[r.dataset.k];r.classList.toggle('on',on);r.querySelector('.tg').textContent=on?'ON':'OFF'})}
+tap($('bSet'),()=>{const open=menu.style.display!=='flex';menu.style.display=open?'flex':'none';if(open){g.pauseSet(true);paint()}});
+tap($('bClose'),()=>{menu.style.display='none';g.pauseSet(false)});
+menu.querySelectorAll('.row').forEach(r=>tap(r,()=>{const o=g.opts();g.setOpt(r.dataset.k,!o[r.dataset.k]);paint()}));
+const TOUCH='ontouchstart' in window||navigator.maxTouchPoints>0;if(TOUCH)$('help').style.display='none';
+const BT=[{k:'strike',l:'SWORD',fx:.3,fy:.3},{k:'shoot',l:'BOW',fx:.28,fy:.74},{k:'jump',l:'JUMP',fx:.72,fy:.55}];const els={};let portOK=false;
+const zL=$('zL'),zR=$('zR'),st=$('stage'),cvE=$('cv');
+function mkK(z,txt,css,k){const e=document.createElement('div');e.className='k';e.textContent=txt;e.style.cssText+=css;z.appendChild(e);if(k)els[k]=e;return e}
+function layout(){const vw=innerWidth||document.documentElement.clientWidth||360,vh=innerHeight||document.documentElement.clientHeight||640,W=Math.max(280,vw-12),port=vh>vw*1.05,gap=8;$('rot').style.display='none';
+ let cw,ch,side,ph;if(!port){side=Math.round(Math.max(110,Math.min(220,W*.2)));cw=Math.max(200,Math.floor(Math.min(W-2*side-2*gap,960,Math.max(150,vh-12-38)*16/9)));ch=Math.floor(cw*9/16);ph=Math.max(ch,120)}
+ else{cw=W;ch=Math.floor(cw*9/16);side=Math.floor((W-gap)/2);ph=Math.max(130,Math.min(200,side*.9))}
+ st.className=port?'port':'';if(port){if(!$('pads')){const p=document.createElement('div');p.id='pads';p.className='pads';st.appendChild(p)}$('pads').append(zL,zR)}else{st.prepend(zL);st.append(zR)}
+ cvE.style.width=cw+'px';cvE.style.height=ch+'px';
+ for(const z of[zL,zR]){z.style.width=side+'px';z.style.height=ph+'px';z.innerHTML=''}
+ const d=Math.min(side,ph)*.92;mkK(zL,'',`left:${side/2-d/2}px;top:${ph/2-d/2}px;width:${d}px;height:${d}px;border-radius:50%;background:transparent`);
+ for(const[c,k,dx,dy]of[['◀','l',-1,0],['▶','r',1,0],['▲','u',0,-1],['▼','d',0,1]]){const s=d*.3;mkK(zL,c,`left:${side/2+dx*d*.32-s/2}px;top:${ph/2+dy*d*.32-s/2}px;width:${s}px;height:${s}px;border-radius:8px;border-width:1px`,k)}
+ const bs=Math.min(side*.46,ph*.36);for(const b of BT)mkK(zR,b.l,`left:${b.fx*side-bs/2}px;top:${b.fy*ph-bs/2}px;width:${bs}px;height:${bs}px;border-radius:50%`,b.k)}
+layout();addEventListener('resize',layout);addEventListener('orientationchange',layout);setTimeout(layout,120);setTimeout(layout,600);if(window.visualViewport)visualViewport.addEventListener('resize',layout);if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',()=>setTimeout(layout,100));document.addEventListener('fullscreenchange',()=>setTimeout(layout,100));
+ async function goFS(){$('fs').style.display='none';const el=document.documentElement;try{const rq=el.requestFullscreen||el.webkitRequestFullscreen;if(rq)await rq.call(el,{navigationUI:'hide'})}catch(e){console.warn('fullscreen failed',e)}try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape')}catch(e){console.warn('orientation lock failed',e)}setTimeout(layout,150);setTimeout(layout,600);g.pressStart()}
+ $('fsB').addEventListener('click',goFS);$('fsS').addEventListener('click',()=>{$('fs').style.display='none';layout()});tap($('bPort'),()=>{portOK=true;layout()});
+const ptrs=new Map();let held=new Set();
+function keysAt(z,cx,cy){const r=z.getBoundingClientRect(),x=cx-r.left,y=cy-r.top;
+ if(z===zL){const dx=x-r.width/2,dy=y-r.height/2;if(Math.hypot(dx,dy)<Math.min(r.width,r.height)*.11)return[];const a=Math.atan2(dy,dx)*180/Math.PI,o=[];if(a>-67.5&&a<67.5)o.push('r');if(a>112.5||a<-112.5)o.push('l');if(a<-22.5&&a>-157.5)o.push('u');if(a>22.5&&a<157.5)o.push('d');return o}
+ let best='jump',bd=1e9;for(const b of BT){const d=Math.hypot(x-b.fx*r.width,y-b.fy*r.height);if(d<bd){bd=d;best=b.k}}return[best]}
+function sync(){const all=new Set();ptrs.forEach(v=>v.forEach(k=>all.add(k)));for(const k of['l','r','u','d','jump','shoot','strike']){const on=all.has(k),was=held.has(k);if(on&&!was)g.press(k,1);if(!on&&was)g.press(k,0);if(els[k])els[k].classList.toggle('on',on)}held=all}
+for(const z of[zL,zR]){z.addEventListener('pointerdown',e=>{e.preventDefault();try{z.setPointerCapture(e.pointerId)}catch(_){}g.pressStart();ptrs.set(e.pointerId,keysAt(z,e.clientX,e.clientY));sync()});
+ z.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;e.preventDefault();ptrs.set(e.pointerId,keysAt(z,e.clientX,e.clientY));sync()});
+ for(const ev of['pointerup','pointercancel','lostpointercapture'])z.addEventListener(ev,e=>{ptrs.delete(e.pointerId);sync()});
+ z.addEventListener('contextmenu',e=>e.preventDefault())}
+})();
+
+</script></body></html>
